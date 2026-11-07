@@ -4,7 +4,7 @@
 
 @section('content')
     @php
-        $imageUrl = fn ($path) => $path && str_starts_with($path, 'http') ? $path : ($path ? asset($path) : 'https://placehold.co/900x540/f1f1f1/777?text=News');
+        $imageUrl = fn ($path) => $path && str_starts_with($path, 'http') ? $path : ($path ? asset($path) : asset('no_image.jpg'));
     @endphp
 
     <div class="page-shell py-5 sm:py-8">

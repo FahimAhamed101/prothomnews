@@ -1,7 +1,7 @@
 @extends('user.body.app')
 @section('title', __('Videos') . ' | ' . __('Daily News'))
 @section('content')
-    @php($imageUrl = fn ($path) => str_starts_with($path, 'http') ? $path : asset($path))
+    @php($imageUrl = fn ($path) => $path && str_starts_with($path, 'http') ? $path : ($path ? asset($path) : asset('no_image.jpg')))
     <div class="bg-[#252525] py-12 text-white">
         <div class="page-shell">
             <h1 class="mb-8 flex items-center gap-2 text-3xl font-bold">{{ __('Videos') }} <span class="text-news-red">›</span></h1>

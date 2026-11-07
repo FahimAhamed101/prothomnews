@@ -9,8 +9,16 @@
   },
   "routes": [
     {
-      "src": "/(build|css|js|images|uploads|admin|user|assets|riode|vendor|storage)/(.*)",
+      "src": "/(build|css|js|images|uploads|assets|riode|vendor|storage)/(.*)",
       "dest": "/$1/$2"
+    },
+    {
+      "src": "/(admin|user)/assets/(.*)",
+      "dest": "/$1/assets/$2"
+    },
+    {
+      "src": "/no_image.jpg",
+      "dest": "/no_image.jpg"
     },
     {
       "src": "/favicon.ico",

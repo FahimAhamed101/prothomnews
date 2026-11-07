@@ -1,7 +1,7 @@
 @extends('user.body.app')
 @section('title', $news->title . ' | ' . __('Daily News'))
 @section('content')
-    @php($imageUrl = fn ($path) => $path && str_starts_with($path, 'http') ? $path : ($path ? asset($path) : null))
+    @php($imageUrl = fn ($path) => $path && str_starts_with($path, 'http') ? $path : ($path ? asset($path) : asset('no_image.jpg')))
     <div class="page-shell py-8 sm:py-12">
         @if ($banner?->news_details_one)
             <img src="{{ $imageUrl($banner->news_details_one) }}" alt="{{ __('Advertisement') }}" class="mb-10 h-24 w-full object-cover">

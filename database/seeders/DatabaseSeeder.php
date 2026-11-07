@@ -18,7 +18,7 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $now = now();
-        $photoUrl = fn (string $keywords, int $width = 900, int $height = 540, int $lock = 1): string => "https://loremflickr.com/{$width}/{$height}/{$keywords}?lock={$lock}";
+        $newsImage = fn (int $counter): string => 'images/news/news-'.((($counter - 1) % 12) + 1).'.jpg';
 
         Schema::disableForeignKeyConstraints();
 
@@ -58,7 +58,7 @@ class DatabaseSeeder extends Seeder
                 'name' => 'Site Admin',
                 'phone' => '1234567890',
                 'address' => 'Newsroom Office',
-                'image' => $photoUrl('admin-profile', 512, 512),
+                'image' => 'images/admin.jpg',
                 'password' => Hash::make('12345678'),
                 'password_hint' => null,
                 'status' => true,
@@ -70,7 +70,7 @@ class DatabaseSeeder extends Seeder
             [
                 'name' => 'Demo Reader',
                 'phone' => '1234567891',
-                'image' => $photoUrl('reader-profile', 512, 512),
+                'image' => 'images/user.jpg',
                 'password' => Hash::make('password'),
             ]
         );
@@ -231,7 +231,7 @@ class DatabaseSeeder extends Seeder
                         'admin_id' => $admin->id,
                         'title' => $title,
                         'slug' => $articleSlug,
-                        'image' => $photoUrl($seedData['keywords'], 900, 540, $newsCounter),
+                        'image' => $newsImage($newsCounter),
                         'details' => implode("\n\n", [
                             'প্রতিদিন সংবাদের প্রতিবেদকেরা দিনভর ঘটনাটি অনুসরণ করেছেন। সংশ্লিষ্ট কর্মকর্তা, স্থানীয় মানুষ ও বিশেষজ্ঞদের সঙ্গে কথা বলে পরিবর্তনের কারণ এবং এর প্রভাব বোঝার চেষ্টা করা হয়েছে।',
                             'প্রাথমিক তথ্যে ধারণার চেয়েও বিস্তৃত প্রভাবের ইঙ্গিত পাওয়া যাচ্ছে। সংশ্লিষ্টরা বলছেন, এই সিদ্ধান্ত দৈনন্দিন সেবা ও মানুষের জীবনে গুরুত্বপূর্ণ পরিবর্তন আনতে পারে।',
@@ -258,12 +258,12 @@ class DatabaseSeeder extends Seeder
         DB::table('banners')->updateOrInsert(
             ['id' => 1],
             [
-                'home_one' => $photoUrl('newspaper,office', 725, 100, 201),
-                'home_two' => $photoUrl('city,night', 725, 100, 202),
-                'home_three' => $photoUrl('press,conference', 725, 100, 203),
-                'home_four' => $photoUrl('newsroom,journalist', 725, 100, 204),
-                'news_category_one' => $photoUrl('newspaper,desk', 725, 100, 205),
-                'news_details_one' => $photoUrl('media,camera', 725, 100, 206),
+                'home_one' => 'images/banners/banner-1.jpg',
+                'home_two' => 'images/banners/banner-2.jpg',
+                'home_three' => 'images/banners/banner-3.jpg',
+                'home_four' => 'images/banners/banner-4.jpg',
+                'news_category_one' => 'images/banners/banner-5.jpg',
+                'news_details_one' => 'images/banners/banner-6.jpg',
                 'created_at' => $now,
                 'updated_at' => $now,
             ]
@@ -272,7 +272,7 @@ class DatabaseSeeder extends Seeder
         DB::table('live_tvs')->updateOrInsert(
             ['id' => 1],
             [
-                'image' => $photoUrl('television,studio', 784, 436, 301),
+                'image' => 'images/livetv.jpg',
                 'url' => 'https://www.youtube.com/embed/dQw4w9WgXcQ',
                 'post_date' => $now->format('d-m-Y'),
                 'created_at' => $now,
@@ -294,9 +294,9 @@ class DatabaseSeeder extends Seeder
 
         for ($index = 1; $index <= 6; $index++) {
             DB::table('photo_galleries')->updateOrInsert(
-                ['photo_gallery' => $photoUrl('journalism,city,people', 640, 420, 400 + $index)],
+                ['id' => $index],
                 [
-                    'photo_gallery' => $photoUrl('journalism,city,people', 640, 420, 400 + $index),
+                    'photo_gallery' => 'images/gallery/photo-'.$index.'.jpg',
                     'post_date' => $now->format('d-m-Y'),
                     'created_at' => $now,
                     'updated_at' => $now,
@@ -306,9 +306,9 @@ class DatabaseSeeder extends Seeder
 
         for ($index = 1; $index <= 5; $index++) {
             DB::table('video_galleries')->updateOrInsert(
-                ['title' => 'Video Report '.$index],
+                ['id' => $index],
                 [
-                    'image' => $photoUrl('camera,interview,news', 640, 360, 500 + $index),
+                    'image' => 'images/news/news-'.$index.'.jpg',
                     'title' => 'Video Report '.$index.': Field Update',
                     'url' => 'https://www.youtube.com/embed/dQw4w9WgXcQ',
                     'post_date' => $now->format('d-m-Y'),

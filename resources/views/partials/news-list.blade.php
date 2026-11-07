@@ -1,4 +1,4 @@
-@php($imageUrl = fn ($path) => $path && str_starts_with($path, 'http') ? $path : ($path ? asset($path) : 'https://placehold.co/640x400/f1f1f1/777?text=News'))
+@php($imageUrl = fn ($path) => $path && str_starts_with($path, 'http') ? $path : ($path ? asset($path) : asset('no_image.jpg')))
 @if ($newsItems->count())
     <div class="grid gap-x-6 gap-y-9 sm:grid-cols-2 lg:grid-cols-3">
         @foreach ($newsItems as $item)

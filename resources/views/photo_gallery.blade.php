@@ -1,7 +1,7 @@
 @extends('user.body.app')
 @section('title', __('Photos') . ' | ' . __('Daily News'))
 @section('content')
-    @php($imageUrl = fn ($path) => str_starts_with($path, 'http') ? $path : asset($path))
+    @php($imageUrl = fn ($path) => $path && str_starts_with($path, 'http') ? $path : ($path ? asset($path) : asset('no_image.jpg')))
     <div class="page-shell py-10">
         <h1 class="section-heading mb-8">{{ __('Photos') }}</h1>
         <div class="columns-1 gap-5 sm:columns-2 lg:columns-3">

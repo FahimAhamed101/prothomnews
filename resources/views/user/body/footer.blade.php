@@ -65,11 +65,11 @@
                 <div class="row">
                     <div class="col-lg-6 col-md-6">
                         <div class="copy-right">
-                            © All rights reserved © Abhiram </div>
+                            © All rights reserved © Fahim | fahim@copyright </div>
                     </div>
                     <div class="col-lg-6 col-md-6">
                         <div class="design-developed">
-                            Developed BY <a href=" " target="_blank">Abhiram</a>
+                            Developed BY <a href="#" target="_blank">Fahim</a>
                         </div>
                     </div>
                 </div>

@@ -187,7 +187,7 @@
                 </div>
             </div>
             <div class="mt-10 flex flex-col justify-between gap-3 border-t border-gray-300 pt-5 text-xs text-gray-500 sm:flex-row">
-                <p>© {{ \App\Support\LocaleHelper::number(date('Y')) }} {{ __('Daily News') }}. {{ __('All rights reserved.') }}</p>
+                <p>© {{ \App\Support\LocaleHelper::number(date('Y')) }} {{ __('Daily News') }}. {{ __('All rights reserved.') }} | fahim@copyright</p>
                 <div class="flex gap-4">
                     <span>{{ __('Terms of Use') }}</span>
                     <span>{{ __('Privacy Policy') }}</span>
