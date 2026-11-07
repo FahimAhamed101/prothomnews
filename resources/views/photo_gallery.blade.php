@@ -1,18 +1,15 @@
 @extends('user.body.app')
-
-@section('title')
-    Photo Gallery | Online Easy News
-@endsection
-
+@section('title', __('Photos') . ' | ' . __('Daily News'))
 @section('content')
-    <div class="container">
-        <h2 class="mb-4">Photo Gallery</h2>
-        <div class="row">
+    @php($imageUrl = fn ($path) => str_starts_with($path, 'http') ? $path : asset($path))
+    <div class="page-shell py-10">
+        <h1 class="section-heading mb-8">{{ __('Photos') }}</h1>
+        <div class="columns-1 gap-5 sm:columns-2 lg:columns-3">
             @foreach ($photogalleries as $photo)
-                <div class="col-md-4 mb-4">
-                    <img src="{{ str_starts_with($photo->photo_gallery, 'http') ? $photo->photo_gallery : asset($photo->photo_gallery) }}"
-                        alt="Gallery image" class="img-fluid w-100" style="height: 230px; object-fit: cover;">
-                </div>
+                <figure class="mb-5 break-inside-avoid overflow-hidden bg-news-paper">
+                    <img src="{{ $imageUrl($photo->photo_gallery) }}" alt="{{ __('News Photo') }}" class="w-full">
+                    <figcaption class="p-3 text-xs text-gray-500">{{ \App\Support\LocaleHelper::number($photo->post_date) }}</figcaption>
+                </figure>
             @endforeach
         </div>
     </div>

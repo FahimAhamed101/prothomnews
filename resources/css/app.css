@@ -1,0 +1,146 @@
+@import "tailwindcss";
+
+@theme {
+    --color-news-red: #e5242a;
+    --color-news-ink: #171717;
+    --color-news-muted: #6b7280;
+    --color-news-paper: #f7f7f5;
+    --font-bengali: "Noto Sans Bengali", "Hind Siliguri", sans-serif;
+    --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+@layer base {
+    body {
+        @apply bg-white font-bengali text-news-ink antialiased;
+    }
+
+    html.lang-en body {
+        font-family: var(--font-sans);
+    }
+
+    html.lang-bn body {
+        font-family: var(--font-bengali);
+    }
+
+    a {
+        @apply transition-colors duration-200;
+    }
+
+    img {
+        @apply block;
+    }
+}
+
+@layer components {
+    .page-shell {
+        @apply mx-auto w-full max-w-[1280px] px-4 sm:px-6;
+    }
+
+    .section-heading {
+        @apply flex items-center gap-2 border-t-2 border-news-ink pt-3 text-xl font-bold sm:text-2xl;
+    }
+
+    .section-heading::after {
+        content: "›";
+        @apply text-news-red;
+    }
+
+    .news-card-title {
+        @apply text-[17px] leading-[1.45] font-bold hover:text-news-red;
+    }
+
+    .news-meta {
+        @apply text-xs text-gray-500;
+    }
+
+    .story-image {
+        @apply w-full bg-gray-100 object-cover;
+    }
+
+    .field {
+        @apply w-full border border-gray-300 bg-white px-4 py-3 outline-none focus:border-news-red focus:ring-1 focus:ring-news-red;
+    }
+
+    .button-primary {
+        @apply inline-flex items-center justify-center bg-news-red px-5 py-3 font-bold text-white hover:bg-red-700;
+    }
+
+    .site-logo {
+        @apply relative isolate inline-flex shrink-0 items-center;
+    }
+
+    .site-logo__wordmark {
+        @apply relative z-10 whitespace-nowrap text-[2.25rem] leading-none font-black text-news-ink sm:text-[2.8rem] md:text-[3.35rem];
+        font-family: "Noto Serif Bengali", serif;
+    }
+
+    html.lang-en .site-logo__wordmark {
+        font-family: var(--font-sans);
+        letter-spacing: -0.04em;
+    }
+
+    .site-logo__sun {
+        @apply absolute top-[-.7rem] left-[48%] -z-10 h-[3.7rem] w-[4.25rem] -translate-x-1/2 text-[#f0442e] sm:top-[-.8rem] sm:h-[4.25rem] sm:w-[4.9rem] md:top-[-1rem] md:h-[4.8rem] md:w-[5.5rem];
+    }
+
+    .site-logo--footer .site-logo__wordmark {
+        @apply text-[2rem] sm:text-[2.35rem];
+    }
+
+    .site-logo--footer .site-logo__sun {
+        @apply top-[-.65rem] h-[3.35rem] w-[3.85rem] sm:top-[-.7rem] sm:h-[3.75rem] sm:w-[4.3rem];
+    }
+}
+
+@keyframes news-ticker {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+}
+
+.news-ticker-track {
+    animation: news-ticker 35s linear infinite;
+}
+
+.news-ticker-track:hover {
+    animation-play-state: paused;
+}
+
+/* Position Google Translate Toolbar Fixed at the Bottom */
+.goog-te-banner-frame,
+.goog-te-banner-frame.skiptranslate,
+iframe[class*="goog-te-banner"],
+iframe.goog-te-banner-frame,
+iframe.VIpgJd-ZVi9od-ORHb-OEVmcd,
+iframe.skiptranslate {
+    top: auto !important;
+    bottom: 0px !important;
+    position: fixed !important;
+    left: 0px !important;
+    width: 100% !important;
+    z-index: 9999999 !important;
+    box-shadow: 0 -3px 12px rgba(0, 0, 0, 0.15) !important;
+    border-top: 1px solid #cbd5e1 !important;
+}
+
+body {
+    top: 0px !important;
+    position: static !important;
+}
+
+html body {
+    margin-top: 0px !important;
+    top: 0px !important;
+}
+
+.goog-tooltip {
+    display: none !important;
+}
+
+.goog-tooltip:hover {
+    display: none !important;
+}
+
+.goog-text-highlight {
+    background-color: transparent !important;
+    box-shadow: none !important;
+}

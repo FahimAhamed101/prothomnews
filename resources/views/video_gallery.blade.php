@@ -1,21 +1,21 @@
 @extends('user.body.app')
-
-@section('title')
-    Video Gallery | Online Easy News
-@endsection
-
+@section('title', __('Videos') . ' | ' . __('Daily News'))
 @section('content')
-    <div class="container">
-        <h2 class="mb-4">Video Gallery</h2>
-        <div class="row">
-            @foreach ($videogalleries as $video)
-                <div class="col-md-4 mb-4">
-                    <img src="{{ str_starts_with($video->image, 'http') ? $video->image : asset($video->image) }}"
-                        alt="{{ $video->title }}" class="img-fluid w-100 mb-2" style="height: 210px; object-fit: cover;">
-                    <h5>{{ $video->title }}</h5>
-                    <a href="{{ $video->url }}" target="_blank">Watch Video</a>
-                </div>
-            @endforeach
+    @php($imageUrl = fn ($path) => str_starts_with($path, 'http') ? $path : asset($path))
+    <div class="bg-[#252525] py-12 text-white">
+        <div class="page-shell">
+            <h1 class="mb-8 flex items-center gap-2 text-3xl font-bold">{{ __('Videos') }} <span class="text-news-red">›</span></h1>
+            <div class="grid gap-7 sm:grid-cols-2 lg:grid-cols-3">
+                @foreach ($videogalleries as $video)
+                    <a href="{{ $video->url }}" target="_blank" rel="noopener" class="group">
+                        <div class="relative">
+                            <img src="{{ $imageUrl($video->image) }}" alt="{{ $video->title }}" class="story-image aspect-video brightness-75">
+                            <span class="absolute top-4 left-4 grid size-10 place-items-center rounded-full bg-news-red">▶</span>
+                        </div>
+                        <h2 class="mt-3 text-lg font-bold group-hover:text-news-red">{{ $video->title }}</h2>
+                    </a>
+                @endforeach
+            </div>
         </div>
     </div>
 @endsection

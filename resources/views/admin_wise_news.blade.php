@@ -1,12 +1,8 @@
 @extends('user.body.app')
-
-@section('title')
-    {{ $admin->name }} News | Online Easy News
-@endsection
-
+@section('title', __('News by :admin', ['admin' => $admin->name]) . ' | ' . __('Daily News'))
 @section('content')
-    <div class="container">
-        <h2 class="mb-4">News By {{ $admin->name }}</h2>
+    <div class="page-shell py-10">
+        <h1 class="section-heading mb-8">{{ __('News by :admin', ['admin' => $admin->name]) }}</h1>
         @include('partials.news-list', ['newsItems' => $news])
     </div>
 @endsection

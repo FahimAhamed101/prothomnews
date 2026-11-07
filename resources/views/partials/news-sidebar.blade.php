@@ -1,26 +1,23 @@
-<div class="mb-4">
-    <h4>Latest News</h4>
-    @foreach ($newnewspost as $item)
-        <div class="media mb-3">
-            <img src="{{ str_starts_with($item->image, 'http') ? $item->image : asset($item->image) }}"
-                alt="{{ $item->title }}" class="mr-3" style="width: 90px; height: 65px; object-fit: cover;">
-            <div class="media-body">
-                <a href="{{ route('news-detail', [$item->id, $item->slug]) }}">{{ $item->title }}</a>
-            </div>
+<aside class="space-y-8">
+    <section>
+        <h2 class="mb-4 border-b-2 border-news-red pb-2 text-xl font-bold">{{ __('Latest') }}</h2>
+        <div class="divide-y divide-gray-200">
+            @foreach ($newnewspost as $item)
+                <article class="py-3 first:pt-0">
+                    <a href="{{ route('news-detail', [$item->id, $item->slug]) }}" class="font-semibold leading-6 hover:text-news-red">{{ $item->title }}</a>
+                </article>
+            @endforeach
         </div>
-    @endforeach
-</div>
-
-<div class="mb-4">
-    <h4>Popular News</h4>
-    @foreach ($newspopular as $item)
-        <div class="media mb-3">
-            <img src="{{ str_starts_with($item->image, 'http') ? $item->image : asset($item->image) }}"
-                alt="{{ $item->title }}" class="mr-3" style="width: 90px; height: 65px; object-fit: cover;">
-            <div class="media-body">
-                <a href="{{ route('news-detail', [$item->id, $item->slug]) }}">{{ $item->title }}</a>
-                <div class="text-muted small">{{ $item->view_count }} views</div>
-            </div>
-        </div>
-    @endforeach
-</div>
+    </section>
+    <section>
+        <h2 class="mb-4 border-b-2 border-news-ink pb-2 text-xl font-bold">{{ __('Popular') }}</h2>
+        <ol class="divide-y divide-gray-200">
+            @foreach ($newspopular as $item)
+                <li class="grid grid-cols-[28px_1fr] gap-3 py-3">
+                    <span class="text-2xl text-gray-300">{{ \App\Support\LocaleHelper::number($loop->iteration) }}</span>
+                    <a href="{{ route('news-detail', [$item->id, $item->slug]) }}" class="font-semibold leading-6 hover:text-news-red">{{ $item->title }}</a>
+                </li>
+            @endforeach
+        </ol>
+    </section>
+</aside>

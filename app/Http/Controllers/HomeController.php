@@ -6,312 +6,177 @@ use App\Models\Admin;
 use App\Models\Banner;
 use App\Models\Category;
 use App\Models\ContactUs;
-use App\Models\LiveTv;
 use App\Models\News;
 use App\Models\PhotoGallery;
 use App\Models\Review;
 use App\Models\Subcategory;
 use App\Models\VideoGallery;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
-use DateTime;
-use Auth;
-use Carbon\Carbon;
-
-
+use Illuminate\View\View;
 
 class HomeController extends Controller
 {
-    public function index()
+    public function index(): View
     {
-        $news_slider_datas = News::where('status', 1)->where('top_slider', 1)->limit(36)->inRandomOrder()->get();
-        $section_three_datas = News::where('status', 1)->where('first_section_three', 1)->limit(3)->inRandomOrder()->get();
-        $section_nine_datas = News::where('status', 1)->where('first_section_nine', 1)->inRandomOrder()->limit(9)->get();
-
-        $newnewspost = News::orderBy('id', 'DESC')->limit(8)->get();
-        $newspopular = News::orderBy('view_count', 'DESC')->limit(8)->get();
-
-        $livetv = LiveTv::find(1);
-        $banners = Banner::find(1);
-
-        $politicalCategory = Category::where('slug', 'politics')->first();
-        $politicalSubCategory = Subcategory::where('category_id', $politicalCategory->id)->orderBy('id', 'DESC')->get();
-
-
-
-        $recentNews = News::where('category_id', $politicalCategory->id)->orderBy('id', 'DESC')->first();
-        $relatedTwoNews = News::where('category_id', $politicalCategory->id)
-            ->where('id', '!=', $recentNews->id)
-            ->orderBy('id', 'DESC')
-            ->limit(2)
+        $latestNews = News::query()
+            ->published()
+            ->with(['category:id,name,slug', 'admin:id,name'])
+            ->latest()
+            ->limit(40)
             ->get();
 
-        $relatedTwoNewsIds = $relatedTwoNews->pluck('id');
+        $hero = $latestNews->firstWhere('top_slider', true) ?? $latestNews->first();
+        $leadStories = $latestNews->where('id', '!=', $hero?->id)->take(4);
+        $popularNews = News::query()->published()->with('category:id,name,slug')->orderByDesc('view_count')->limit(6)->get();
+        $videoNews = News::query()->published()->whereNotNull('video_type')->latest()->limit(5)->get();
 
-        $relatedFiveNews = News::where('category_id', $politicalCategory->id)
-            ->whereNotIn('id', [$recentNews->id])
-            ->whereNotIn('id', $relatedTwoNewsIds->toArray())
-            ->orderBy('id', 'DESC')
-            ->limit(5)
-            ->get();
+        $categorySections = Category::query()
+            ->with([
+                'subcategories:id,category_id,name,slug',
+                'news' => fn ($query) => $query->published()->latest()->limit(5),
+            ])
+            ->orderBy('id')
+            ->get()
+            ->filter(fn (Category $category) => $category->news->isNotEmpty());
 
-        $photogalleries = PhotoGallery::latest()->get();
-        $photogalleries1 = PhotoGallery::latest()->get();
-        $videogalleries = VideoGallery::latest()->limit(5)->get();
-
-
-        $entertainmentCategory = Category::where('slug', 'entertainment')->first();
-        $entertainmentSubCategory = Subcategory::where('category_id', $entertainmentCategory->id)->orderBy('id', 'DESC')->get();
-
-        $entertaimentAllNews = News::where('category_id', $entertainmentCategory->id)->orderBy('id', 'DESC')->get();
-
-        $automobilesCategory = Category::where('slug', 'automobiles')->first();
-        $automobilesSubCategory = Subcategory::where('category_id', $automobilesCategory->id)->orderBy('id', 'DESC')->get();
-
-        $recentAutomobilesNews = News::where('category_id', $automobilesCategory->id)->orderBy('id', 'DESC')->first();
-        $relatedAutomobilesNews = News::where('category_id', $automobilesCategory->id)
-            ->where('id', '!=', $recentAutomobilesNews->id)
-            ->orderBy('id', 'DESC')
-            ->limit(3)
-            ->get();
-
-        $crimeCategory = Category::where('slug', 'crime')->first();
-        $crimeSubCategory = Subcategory::where('category_id', $crimeCategory->id)->orderBy('id', 'DESC')->get();
-
-        $recentCrimeNews = News::where('category_id', $crimeCategory->id)->orderBy('id', 'DESC')->first();
-        $relatedCrimeNews = News::where('category_id', $crimeCategory->id)
-            ->where('id', '!=', $recentCrimeNews->id)
-            ->orderBy('id', 'DESC')
-            ->limit(3)
-            ->get();
-
-        $healthCategory = Category::where('slug', 'health-and-fitness')->first();
-        $healthSubCategory = Subcategory::where('category_id', $healthCategory->id)->orderBy('id', 'DESC')->get();
-
-        $recentHealthNews = News::where('category_id', $healthCategory->id)->orderBy('id', 'DESC')->first();
-        $relatedHealthNews = News::where('category_id', $healthCategory->id)
-            ->where('id', '!=', $recentHealthNews->id)
-            ->orderBy('id', 'DESC')
-            ->limit(3)
-            ->get();
-
-        $sportsCategory = Category::where('slug', 'sports')->first();
-        $sportsSubCategory = Subcategory::where('category_id', $sportsCategory->id)->orderBy('id', 'DESC')->get();
-        $recentSportsNews = News::where('category_id', $sportsCategory->id)->orderBy('id', 'DESC')->first();
-        $relatedSportsNews = News::where('category_id', $sportsCategory->id)
-            ->where('id', '!=', $recentSportsNews->id)
-            ->orderBy('id', 'DESC')
-            ->limit(4)->inRandomOrder()
-            ->get();
-
-
-        return view(
-            'welcome',
-            compact(
-                'news_slider_datas',
-                'section_three_datas',
-                'section_nine_datas',
-                'newnewspost',
-                'newspopular',
-                'livetv',
-                'banners',
-                'politicalCategory',
-                'politicalSubCategory',
-                'recentNews',
-                'relatedTwoNews',
-                'relatedFiveNews',
-                'photogalleries',
-                'photogalleries1',
-                'videogalleries',
-                'entertainmentCategory',
-                'entertainmentSubCategory',
-                'entertaimentAllNews',
-                'automobilesCategory',
-                'automobilesSubCategory',
-                'recentAutomobilesNews',
-                'relatedAutomobilesNews',
-                'crimeCategory',
-                'crimeSubCategory',
-                'recentCrimeNews',
-                'relatedCrimeNews',
-                'healthCategory',
-                'healthSubCategory',
-                'recentHealthNews',
-                'relatedHealthNews',
-                'sportsCategory',
-                'sportsSubCategory',
-                'recentSportsNews',
-                'relatedSportsNews'
-            )
-        );
+        return view('welcome', [
+            'hero' => $hero,
+            'leadStories' => $leadStories,
+            'latestNews' => $latestNews,
+            'popularNews' => $popularNews,
+            'categorySections' => $categorySections,
+            'videoNews' => $videoNews,
+            'videoGalleries' => VideoGallery::query()->latest()->limit(5)->get(),
+            'photoGalleries' => PhotoGallery::query()->latest()->limit(5)->get(),
+            'banner' => Banner::query()->find(1),
+        ]);
     }
 
-    public function newsDetais($id, $slug)
+    public function newsDetais(int $id, string $slug): View
     {
-        $banner = Banner::find(1);
+        $news = News::query()->published()->with(['category', 'subcategory', 'admin'])->findOrFail($id);
 
-        $news = News::findOrFail($id);
-
-        $tags = $news->tags;
-        $tags_all = explode(',', $tags);
-
-        $cat_id = $news->category_id;
-        $relatedNews = News::where('category_id', $cat_id)->where('id', '!=', $id)->orderBy('id', 'DESC')->limit(6)->get();
-
-        $newsKey = 'blog' . $news->id;
-        if (!Session::has($newsKey)) {
+        $newsKey = 'news-view-'.$news->id;
+        if (! Session::has($newsKey)) {
             $news->increment('view_count');
-            Session::put($newsKey, 1);
+            Session::put($newsKey, true);
         }
 
-        $newnewspost = News::orderBy('id', 'DESC')->limit(8)->get();
-        $newspopular = News::orderBy('view_count', 'DESC')->limit(8)->get();
-
-        return view('news_details', compact('news', 'tags_all', 'relatedNews', 'newnewspost', 'newspopular', 'banner'));
-    }
-
-
-    public function categoryNews($id, $slug)
-    {
-        $banner = Banner::find(1);
-
-        $categoryName = Category::where('id', $id)->first();
-
-        $recentNews = News::where('category_id', $id)->orderBy('id', 'DESC')->first();
-        $relatedTwoNews = News::where('category_id', $id)
-            ->where('id', '!=', $recentNews->id)
-            ->orderBy('id', 'DESC')
-            ->limit(2)
-            ->get();
-        // $otherNews = News::where('category_id', $id)->orderBy('id', 'DESC')->paginate(3);
-        // dd($otherNews);
-        $relatedTwoNewsIds = $relatedTwoNews->pluck('id');
-
-        $otherNews = News::where('category_id', $id)
-            ->whereNotIn('id', [$recentNews->id])
-            ->whereNotIn('id', $relatedTwoNewsIds->toArray())
-            ->orderBy('id', 'DESC')
-            ->simplePaginate(3);
-
-        $newnewspost = News::orderBy('id', 'DESC')->limit(8)->get();
-        $newspopular = News::orderBy('view_count', 'DESC')->limit(8)->get();
-
-
-        return view('category_news', compact('recentNews', 'relatedTwoNews', 'otherNews', 'newnewspost', 'newspopular', 'categoryName', 'banner'));
-    }
-
-    public function subCategoryNews($id, $slug)
-    {
-        $subCategoryName = Subcategory::where('id', $id)->first();
-
-        $recentNews = News::where('subcategory_id', $id)->orderBy('id', 'DESC')->first();
-        $relatedTwoNews = News::where('subcategory_id', $id)
-            ->where('id', '!=', $recentNews->id)
-            ->orderBy('id', 'DESC')
-            ->limit(2)
-            ->get();
-
-        $relatedTwoNewsIds = $relatedTwoNews->pluck('id');
-
-        $otherNews = News::where('subcategory_id', $id)
-            ->whereNotIn('id', [$recentNews->id])
-            ->whereNotIn('id', $relatedTwoNewsIds->toArray())
-            ->orderBy('id', 'DESC')
-            ->simplePaginate(3);
-
-        $newnewspost = News::orderBy('id', 'DESC')->limit(8)->get();
-        $newspopular = News::orderBy('view_count', 'DESC')->limit(8)->get();
-
-        return view('sub_category_news', compact('subCategoryName', 'recentNews', 'relatedTwoNews', 'otherNews', 'newnewspost', 'newspopular'));
-    }
-
-    public function searchByDate(Request $request)
-    {
-
-        $date = new DateTime($request->date);
-        $formatDate = $date->format('d-m-Y');
-
-        $newnewspost = News::orderBy('id', 'DESC')->limit(8)->get();
-        $newspopular = News::orderBy('view_count', 'DESC')->limit(8)->get();
-
-        $news = News::where('post_date', $formatDate)->latest()->get();
-
-        return view('search_by_date', compact('news', 'formatDate', 'newnewspost', 'newspopular'));
-
-    }
-
-    public function searchByName(Request $request)
-    {
-        $request->validate(['search' => "required"]);
-
-        $item = $request->search;
-
-        $news = News::where('title', 'LIKE', "%$item%")->get();
-        $newnewspost = News::orderBy('id', 'DESC')->limit(8)->get();
-        $newspopular = News::orderBy('view_count', 'DESC')->limit(8)->get();
-
-        return view('search_by_name', compact('news', 'newnewspost', 'newspopular', 'item'));
-    }
-
-    public function adminNews($id)
-    {
-        $admin = Admin::findOrFail($id);
-
-        $news = News::where('admin_id', $id)->get();
-        return view('admin_wise_news', compact('admin', 'news'));
-    }
-
-    public function reviewPost(Request $request)
-    {
-        $news_id = $request->id;
-        $user_id = Auth::guard('web')->user()->id;
-        
-
-        Review::insert([
-            'user_id' => $user_id,
-            'news_id' => $news_id,
-            'comments' => $request->comments,
-            'created_at' => Carbon::now(),
+        return view('news_details', [
+            'news' => $news,
+            'tags_all' => array_filter(array_map('trim', explode(',', (string) $news->tags))),
+            'relatedNews' => News::query()->published()->where('category_id', $news->category_id)->whereKeyNot($news)->latest()->limit(6)->get(),
+            'newnewspost' => News::query()->published()->latest()->limit(8)->get(),
+            'newspopular' => News::query()->published()->orderByDesc('view_count')->limit(8)->get(),
+            'banner' => Banner::query()->find(1),
         ]);
-        $notification = array(
-            'message' => 'Review Will Approve By Admin',
-            'alert-type' => 'success'
-        );
-        return redirect()->back()->with($notification);
     }
 
-    public function allPhotoGallery()
+    public function categoryNews(int $id, string $slug): View
     {
-        $photogalleries = PhotoGallery::latest()->get();
-        return view('photo_gallery', compact('photogalleries'));
+        $category = Category::query()->findOrFail($id);
+        $news = News::query()->published()->whereBelongsTo($category)->latest()->paginate(12);
+
+        return view('category_news', [
+            'categoryName' => $category,
+            'recentNews' => $news->first(),
+            'relatedTwoNews' => $news->slice(1, 2),
+            'otherNews' => $news,
+            'newnewspost' => News::query()->published()->latest()->limit(8)->get(),
+            'newspopular' => News::query()->published()->orderByDesc('view_count')->limit(8)->get(),
+            'banner' => Banner::query()->find(1),
+        ]);
     }
 
-    public function allVideoGallery()
+    public function subCategoryNews(int $id, string $slug): View
     {
-        $videogalleries = VideoGallery::latest()->get();
-        return view('video_gallery', compact('videogalleries'));
+        $subcategory = Subcategory::query()->findOrFail($id);
+        $news = News::query()->published()->whereBelongsTo($subcategory)->latest()->paginate(12);
+
+        return view('sub_category_news', [
+            'subCategoryName' => $subcategory,
+            'recentNews' => $news->first(),
+            'relatedTwoNews' => $news->slice(1, 2),
+            'otherNews' => $news,
+            'newnewspost' => News::query()->published()->latest()->limit(8)->get(),
+            'newspopular' => News::query()->published()->orderByDesc('view_count')->limit(8)->get(),
+        ]);
     }
 
-    public function contactUs()
+    public function searchByDate(Request $request): View
+    {
+        $validated = $request->validate(['date' => ['required', 'date']]);
+        $formatDate = date('d-m-Y', strtotime($validated['date']));
+
+        return view('search_by_date', [
+            'news' => News::query()->published()->where('post_date', $formatDate)->latest()->get(),
+            'formatDate' => $formatDate,
+        ]);
+    }
+
+    public function searchByName(Request $request): View
+    {
+        $validated = $request->validate(['search' => ['required', 'string', 'max:100']]);
+        $item = $validated['search'];
+
+        return view('search_by_name', [
+            'news' => News::query()->published()->where('title', 'like', '%'.$item.'%')->latest()->get(),
+            'item' => $item,
+        ]);
+    }
+
+    public function adminNews(int $id): View
+    {
+        $admin = Admin::query()->findOrFail($id);
+
+        return view('admin_wise_news', ['admin' => $admin, 'news' => News::query()->published()->whereBelongsTo($admin)->latest()->get()]);
+    }
+
+    public function reviewPost(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'id' => ['required', 'exists:news,id'],
+            'comments' => ['required', 'string', 'max:2000'],
+        ]);
+
+        Review::query()->create([
+            'user_id' => Auth::guard('web')->id(),
+            'news_id' => $validated['id'],
+            'comments' => $validated['comments'],
+        ]);
+
+        return back()->with(['message' => 'Review will be published after approval.', 'alert-type' => 'success']);
+    }
+
+    public function allPhotoGallery(): View
+    {
+        return view('photo_gallery', ['photogalleries' => PhotoGallery::query()->latest()->get()]);
+    }
+
+    public function allVideoGallery(): View
+    {
+        return view('video_gallery', ['videogalleries' => VideoGallery::query()->latest()->get()]);
+    }
+
+    public function contactUs(): View
     {
         return view('contact-us');
     }
 
-    public function contactUsPost(Request $request)
+    public function contactUsPost(Request $request): RedirectResponse
     {
-        ContactUs::insert([
-            'name' => $request->name,
-            'email' => $request->email,
-            'phone' => $request->phone,
-            'comments' => $request->comments,
-            'created_at' => Carbon::now(),
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:100'],
+            'email' => ['required', 'email', 'max:255'],
+            'phone' => ['nullable', 'string', 'max:30'],
+            'comments' => ['required', 'string', 'max:3000'],
         ]);
-        $notification = array(
-            'message' => 'Contact Us Submitted Successfully',
-            'alert-type' => 'success'
-        );
-        return redirect()->back()->with($notification);
+
+        ContactUs::query()->create($validated);
+
+        return back()->with(['message' => 'Your message has been sent.', 'alert-type' => 'success']);
     }
-
-
 }

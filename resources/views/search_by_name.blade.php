@@ -1,12 +1,8 @@
 @extends('user.body.app')
-
-@section('title')
-    Search Results | Online Easy News
-@endsection
-
+@section('title', __('Search') . ' | ' . __('Daily News'))
 @section('content')
-    <div class="container">
-        <h2 class="mb-4">Search Results For "{{ $item }}"</h2>
+    <div class="page-shell py-10">
+        <h1 class="section-heading mb-8">{{ __('Search Results for ":query"', ['query' => $item]) }}</h1>
         @include('partials.news-list', ['newsItems' => $news])
     </div>
 @endsection

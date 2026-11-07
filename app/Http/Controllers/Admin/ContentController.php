@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\SaveNewsRequest;
 use App\Models\Banner;
 use App\Models\Category;
 use App\Models\ContactUs;
@@ -16,6 +17,7 @@ use App\Models\VideoGallery;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 
@@ -115,12 +117,13 @@ class ContentController extends Controller
         return view('admin.content.news.form', $this->newsFormData());
     }
 
-    public function storeNews(Request $request): RedirectResponse
+    public function storeNews(SaveNewsRequest $request): RedirectResponse
     {
-        $validated = $this->validateNews($request);
+        $validated = $request->validated();
         $validated['admin_id'] = Auth::guard('admin')->id();
         $validated['slug'] = Str::slug($validated['title']);
         $validated['image'] = $this->storeImage($request, 'image', 'storage/news');
+        $this->storeNewsVideo($validated, $request);
         $validated['post_date'] = now()->format('d-m-Y');
         $validated['post_month'] = now()->format('F');
         $this->applyNewsFlags($validated, $request);
@@ -135,11 +138,12 @@ class ContentController extends Controller
         return view('admin.content.news.form', [...$this->newsFormData(), 'news' => $news]);
     }
 
-    public function updateNews(Request $request, News $news): RedirectResponse
+    public function updateNews(SaveNewsRequest $request, News $news): RedirectResponse
     {
-        $validated = $this->validateNews($request);
+        $validated = $request->validated();
         $validated['slug'] = Str::slug($validated['title']);
         $this->applyNewsFlags($validated, $request);
+        $this->storeNewsVideo($validated, $request, $news);
 
         if ($image = $this->storeImage($request, 'image', 'storage/news')) {
             $validated['image'] = $image;
@@ -300,37 +304,16 @@ class ContentController extends Controller
         ];
     }
 
-    private function validateNews(Request $request): array
-    {
-        return $request->validate([
-            'category_id' => ['required', 'exists:categories,id'],
-            'subcategory_id' => ['nullable', 'exists:subcategories,id'],
-            'title' => ['required', 'string', 'max:255'],
-            'image' => ['nullable', 'image', 'max:4096'],
-            'details' => ['nullable', 'string'],
-            'tags' => ['nullable', 'string', 'max:255'],
-            'breaking_news' => ['nullable', 'boolean'],
-            'top_slider' => ['nullable', 'boolean'],
-            'first_section_three' => ['nullable', 'boolean'],
-            'first_section_nine' => ['nullable', 'boolean'],
-        ]);
-    }
-
     private function storeImage(Request $request, string $field, string $directory): ?string
     {
         if (! $request->hasFile($field)) {
             return null;
         }
 
-        if (! is_dir(public_path($directory))) {
-            mkdir(public_path($directory), 0755, true);
-        }
+        $storageDirectory = Str::after($directory, 'storage/');
+        $path = $request->file($field)->store($storageDirectory, 'public');
 
-        $file = $request->file($field);
-        $filename = uniqid($field.'_').'.'.$file->getClientOriginalExtension();
-        $file->move(public_path($directory), $filename);
-
-        return $directory.'/'.$filename;
+        return 'storage/'.$path;
     }
 
     /**
@@ -341,6 +324,39 @@ class ContentController extends Controller
         foreach (['status', 'breaking_news', 'top_slider', 'first_section_three', 'first_section_nine'] as $field) {
             $validated[$field] = $request->boolean($field);
         }
+    }
+
+    /**
+     * @param  array<string, mixed>  $validated
+     */
+    private function storeNewsVideo(array &$validated, SaveNewsRequest $request, ?News $news = null): void
+    {
+        $videoType = $validated['video_type'] ?? null;
+
+        if ($videoType !== 'upload') {
+            unset($validated['video_file']);
+            $validated['video_path'] = null;
+
+            if ($news?->video_path) {
+                Storage::disk('public')->delete(Str::after($news->video_path, 'storage/'));
+            }
+        }
+
+        if ($videoType !== 'youtube') {
+            $validated['video_url'] = null;
+        }
+
+        if ($videoType === 'upload' && $request->hasFile('video_file')) {
+            if ($news?->video_path) {
+                Storage::disk('public')->delete(Str::after($news->video_path, 'storage/'));
+            }
+
+            $validated['video_path'] = 'storage/'.$request->file('video_file')->store('news/videos', 'public');
+        } elseif ($videoType === 'upload' && $news?->video_path) {
+            $validated['video_path'] = $news->video_path;
+        }
+
+        unset($validated['video_file']);
     }
 
     private function notification(string $message, string $type = 'success'): array

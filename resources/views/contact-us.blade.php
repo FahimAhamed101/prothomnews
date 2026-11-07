@@ -1,35 +1,35 @@
 @extends('user.body.app')
-
-@section('title')
-    Contact Us | Online Easy News
-@endsection
-
+@section('title', __('Contact Us') . ' | ' . __('Daily News'))
 @section('content')
-    <div class="container">
-        <h2 class="mb-4">Contact Us</h2>
-        <div class="row">
-            <div class="col-lg-7">
-                <form method="POST" action="{{ route('contact-us-post') }}">
-                    @csrf
-                    <div class="form-group">
-                        <label>Name</label>
-                        <input type="text" name="name" class="form-control" required>
+    <div class="page-shell py-12">
+        <div class="mx-auto max-w-2xl">
+            <h1 class="section-heading mb-3">{{ __('Contact Us') }}</h1>
+            <p class="mb-8 leading-7 text-gray-600">{{ __('Use the form below to send news, feedback, or corrections.') }}</p>
+            @if ($errors->any())
+                <div class="mb-5 bg-red-50 p-4 text-sm text-red-700">{{ $errors->first() }}</div>
+            @endif
+            <form method="POST" action="{{ route('contact-us-post') }}" class="space-y-5">
+                @csrf
+                <div class="grid gap-5 sm:grid-cols-2">
+                    <div>
+                        <label class="mb-2 block font-semibold">{{ __('Name') }}</label>
+                        <input name="name" value="{{ old('name') }}" class="field" required>
                     </div>
-                    <div class="form-group">
-                        <label>Email</label>
-                        <input type="email" name="email" class="form-control" required>
+                    <div>
+                        <label class="mb-2 block font-semibold">{{ __('Email') }}</label>
+                        <input type="email" name="email" value="{{ old('email') }}" class="field" required>
                     </div>
-                    <div class="form-group">
-                        <label>Phone</label>
-                        <input type="text" name="phone" class="form-control">
-                    </div>
-                    <div class="form-group">
-                        <label>Message</label>
-                        <textarea name="comments" class="form-control" rows="5" required></textarea>
-                    </div>
-                    <button type="submit" class="btn btn-primary">Send Message</button>
-                </form>
-            </div>
+                </div>
+                <div>
+                    <label class="mb-2 block font-semibold">{{ __('Phone') }}</label>
+                    <input name="phone" value="{{ old('phone') }}" class="field">
+                </div>
+                <div>
+                    <label class="mb-2 block font-semibold">{{ __('Message') }}</label>
+                    <textarea name="comments" rows="6" class="field" required>{{ old('comments') }}</textarea>
+                </div>
+                <button class="button-primary">{{ __('Send Message') }}</button>
+            </form>
         </div>
     </div>
 @endsection
